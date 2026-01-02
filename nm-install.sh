@@ -17,8 +17,17 @@ fi
 # Parameters required
 if [ $# -lt 1 ]
 then
-	echo -e "|   Usage: bash $0 'token'\n|"
+	echo -e "|   Usage: bash $0 'token' ['api_url']\n|"
+	echo -e "|   Example: bash $0 'your-token' 'https://your-api.com'\n|"
 	exit 1
+fi
+
+# Set API URL (use parameter or default)
+if [ -n "$2" ]
+then
+	api_url="$2"
+else
+	api_url="https://example.com"
 fi
 
 # Check if crontab is installed
@@ -120,8 +129,9 @@ echo -e "|   Downloading nm-agent.sh to /etc/nodemonitor\n|\n|   + $(wget -nv -o
 
 if [ -f /etc/nodemonitor/nm-agent.sh ]
 then
-	# Create auth file
+	# Create auth file with token and API URL
 	echo "$1" > /etc/nodemonitor/nm-auth.log
+	echo "$api_url" >> /etc/nodemonitor/nm-auth.log
 
 	# Create user
 	useradd nodemonitor -r -d /etc/nodemonitor -s /bin/false
