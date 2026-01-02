@@ -25,7 +25,7 @@ else
 	echo "Error: Authentication log is missing."
 	exit 1
 fi
-
+api_url="${api_url%/}"
 # Prepare values
 function prep ()
 {
