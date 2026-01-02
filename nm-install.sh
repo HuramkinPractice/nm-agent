@@ -29,7 +29,7 @@ then
 else
 	api_url="https://example.com"
 fi
-
+api_url="${api_url%/}"
 # Check if crontab is installed
 if [ ! -n "$(command -v crontab)" ]
 then
