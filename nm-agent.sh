@@ -14,6 +14,13 @@ version="0.7.7"
 if [ -f /etc/nodemonitor/nm-auth.log ]
 then
 	auth=($(cat /etc/nodemonitor/nm-auth.log))
+	# Read API URL from auth file (line 2), use default if not present
+	if [ -n "${auth[1]}" ]
+	then
+		api_url="${auth[1]}"
+	else
+		api_url="https://example.com"
+	fi
 else
 	echo "Error: Authentication log is missing."
 	exit 1
@@ -228,19 +235,19 @@ data_post="token=${auth[0]}&data=$(base "$version") $(base "$uptime") $(base "$s
 # API request with automatic termination
 if [ -n "$(command -v timeout)" ]
 then
-	timeout -s SIGKILL 30 wget -q -o /dev/null -O /etc/nodemonitor/nm-agent.log -T 25 --post-data "$data_post" --no-check-certificate "https://example.com/api/agent"
+	timeout -s SIGKILL 30 wget -q -o /dev/null -O /etc/nodemonitor/nm-agent.log -T 25 --post-data "$data_post" --no-check-certificate "${api_url}/api/agent.json"
 else
-	wget -q -o /dev/null -O /etc/nodemonitor/nm-agent.log -T 25 --post-data "$data_post" --no-check-certificate "https://example.com/api/agent"
-	wget_pid=$! 
+	wget -q -o /dev/null -O /etc/nodemonitor/nm-agent.log -T 25 --post-data "$data_post" --no-check-certificate "${api_url}/api/agent.json"
+	wget_pid=$!
 	wget_counter=0
 	wget_timeout=30
-	
+
 	while kill -0 "$wget_pid" && (( wget_counter < wget_timeout ))
 	do
 	    sleep 1
 	    (( wget_counter++ ))
 	done
-	
+
 	kill -0 "$wget_pid" && kill -s SIGKILL "$wget_pid"
 fi
 
